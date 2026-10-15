@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "NVIDIA.nsight-vscode-edition",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "ms-vscode.cpptools",
+        "tboox.xmake-vscode",
+        "FanaticPythoner.better-todo-tree"
+    ]
+}

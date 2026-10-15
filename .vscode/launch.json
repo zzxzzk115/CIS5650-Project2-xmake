@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CUDA: stream compaction (Linux, xmake debug)",
+            "type": "cuda-gdb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/debug/cis5650_stream_compaction_test",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "xmake: build debug",
+            "stopAtEntry": true,
+            "onAPIError": "stop",
+            "args": []
+        },
+        {
+            "name": "Windows: stream compaction (host debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/debug/cis5650_stream_compaction_test.exe",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "xmake: build debug",
+            "stopAtEntry": true,
+            "console": "integratedTerminal",
+            "args": []
+        }
+    ]
+}

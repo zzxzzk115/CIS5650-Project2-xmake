@@ -1,0 +1,67 @@
+{
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "clangd.enable": true,
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}",
+        "--header-insertion=never",
+        "--fallback-style=none"
+    ],
+    "xmake.compileCommandsBackend": "clangd",
+    "xmake.compileCommandsDirectory": ".",
+    "xmake.autoGenerateCompileCommands": "disabled",
+    "nsight.cuda.languageSupport.provider": "clangd",
+    "nsight.cuda.languageSupport.autoConfigure": false,
+    "better-todo-tree.general.tags": [
+        "BUG", "HACK", "FIXME", "TODO", "XXX", "[ ]", "[x]", "LOOK"
+    ],
+    "better-todo-tree.tree.groupedByTag": true,
+    "better-todo-tree.tree.showCountsInTree": true,
+    "better-todo-tree.tree.labelFormat": "",
+    "better-todo-tree.regex.subTagRegex": "^\\s*(?:TODO-|[-:]\\s*)",
+    "better-todo-tree.highlights.customHighlight": {
+        "[ ]": {
+            "icon": "$(circle-outline)",
+            "iconColour": "editorWarning.foreground",
+            "foreground": "editorWarning.foreground",
+            "background": "editor.background",
+            "type": "tag"
+        },
+        "[x]": {
+            "icon": "check",
+            "iconColour": "#73C991",
+            "foreground": "#73C991",
+            "background": "editor.background",
+            "type": "tag"
+        },
+        "LOOK": {
+            "icon": "$(info)",
+            "iconColour": "editorInfo.foreground",
+            "foreground": "editorInfo.foreground",
+            "background": "editor.background",
+            "type": "tag"
+        }
+    },
+    "better-todo-tree.languages.customPatterns": [
+        {
+            "id": "cuda",
+            "name": "CUDA C++",
+            "languageIds": [
+                "cuda-cpp"
+            ],
+            "extensions": [
+                ".cu",
+                ".cuh"
+            ],
+            "singleLineComments": [
+                "//"
+            ],
+            "multiLineComments": [
+                {
+                    "start": "/*",
+                    "middle": "*",
+                    "end": "*/"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+CompileFlags:
+  CompilationDatabase: .
+  Remove: [-std=*, '/std:*']
+  # Forward the standard to Clang even when a header borrows a cl.exe command.
+  Add: ['/clang:-std=c++17']
+---
+If:
+  PathMatch: (.*\.cu(h)?|stream_compaction/.*\.h)
+CompileFlags:
+  Compiler: clang-cl
+  Remove: [-G, -gencode, 'arch=compute_*', '-rdc=*', '-Xcompiler*', '-FS*', '"-MD"', --std, c++17, -lineinfo, '-I"*']
+  # Clang's CUDA wrapper can include Windows headers before Thrust/STL headers.
+  Add: ['/clang:-xcuda', /DNOMINMAX, @CUDA_PATH@, '/clang:--cuda-gpu-arch=@CUDA_ARCH@', @CUDA_INCLUDE@, @CUDA_CCCL@]

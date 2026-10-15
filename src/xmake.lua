@@ -1,0 +1,8 @@
+target("cis5650_stream_compaction_test")
+    set_kind("binary")
+    set_default(true)
+    add_deps("stream_compaction")
+    add_files("*.cpp")
+    add_headerfiles("*.hpp")
+    set_rundir("$(projectdir)")
+target_end()

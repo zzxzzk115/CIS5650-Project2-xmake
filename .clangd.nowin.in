@@ -1,0 +1,11 @@
+CompileFlags:
+  CompilationDatabase: .
+  Remove: [-std=*]
+  Add: [-std=c++17]
+---
+If:
+  PathMatch: (.*\.cu(h)?|stream_compaction/.*\.h)
+CompileFlags:
+  Compiler: clang++
+  Remove: [-G, -gencode, 'arch=compute_*', '-rdc=*', '-Xcompiler*', '-fPIE', --std, c++17, -lineinfo, '-I"*']
+  Add: [-xcuda, @CUDA_PATH@, --cuda-gpu-arch=@CUDA_ARCH@, @CUDA_INCLUDE@, @CUDA_CCCL@]

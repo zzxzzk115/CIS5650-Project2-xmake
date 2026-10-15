@@ -1,0 +1,113 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "xmake: configure debug",
+            "type": "process",
+            "command": "xmake",
+            "args": [
+                "f",
+                "-m",
+                "debug",
+                "-y"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "xmake: build debug",
+            "type": "process",
+            "command": "xmake",
+            "args": [
+                "-v"
+            ],
+            "dependsOn": "xmake: configure debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc",
+                "$msCompile",
+                {
+                    "owner": "cuda",
+                    "fileLocation": [
+                        "relative",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.+?)\\((\\d+)\\):\\s+(warning|error)(?:\\s+#[^:]+)?:\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "severity": 3,
+                        "message": 4
+                    }
+                }
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "xmake: run stream compaction",
+            "type": "process",
+            "command": "xmake",
+            "args": [
+                "run",
+                "cis5650_stream_compaction_test"
+            ],
+            "dependsOn": "xmake: build debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "xmake: configure release",
+            "type": "process",
+            "command": "xmake",
+            "args": [
+                "f",
+                "-m",
+                "release",
+                "-y"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "xmake: build release",
+            "type": "process",
+            "command": "xmake",
+            "args": [
+                "-v"
+            ],
+            "dependsOn": "xmake: configure release",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc",
+                "$msCompile",
+                {
+                    "owner": "cuda",
+                    "fileLocation": [
+                        "relative",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.+?)\\((\\d+)\\):\\s+(warning|error)(?:\\s+#[^:]+)?:\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "severity": 3,
+                        "message": 4
+                    }
+                }
+            ]
+        }
+    ]
+}

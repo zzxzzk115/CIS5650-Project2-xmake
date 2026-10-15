@@ -560,3 +560,17 @@ xcuserdata
 *.xccheckout
 *.moved-aside
 *.xcuserstate
+
+# Local CUDA/xmake environment
+/.xmake/
+/vsxmake*/
+/.vscode/compile_commands.json
+/compile_commands.json
+/.clangd
+/.cache/
+/*.nsys-rep
+/*.ncu-rep
+/*.ncu-repz
+/*.sqlite
+/cuda-gdb.log
+/*.local.code-workspace
