@@ -1,10 +1,24 @@
 #include <cstdio>
+#include <vector>
 #include "cpu.h"
 
 #include "common.h"
 
 namespace StreamCompaction {
     namespace CPU {
+        namespace {
+            // Share the scan logic without nesting the CPU performance timer.
+            void exclusiveScan(int n, int *odata, const int *idata) {
+                int sum = 0;
+                for (int i = 0; i < n; ++i)
+                {
+                    const int value = idata[i];
+                    odata[i] = sum;
+                    sum += value;
+                }
+            }
+        }
+
         using StreamCompaction::Common::PerformanceTimer;
         PerformanceTimer& timer()
         {
@@ -19,7 +33,8 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
-            // TODO
+            // [x] TODO
+            exclusiveScan(n, odata, idata);
             timer().endCpuTimer();
         }
 
@@ -30,9 +45,17 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
-            // TODO
+            // [x] TODO
+            int c = 0;
+            for (int i = 0; i < n; ++i)
+            {
+                if (idata[i] != 0)
+                {
+                    odata[c++] = idata[i];
+                }
+            }
             timer().endCpuTimer();
-            return -1;
+            return c;
         }
 
         /**
@@ -42,9 +65,30 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
-            // TODO
+            // [x] TODO
+            std::vector<int> bools(n);
+            std::vector<int> indices(n);
+
+            // Map every nonzero value to 1, including negative values.
+            for (int i = 0; i < n; ++i)
+            {
+                bools[i] = idata[i] != 0;
+            }
+
+            // Keep scatter destinations separate from the output values.
+            exclusiveScan(n, indices.data(), bools.data());
+
+            const int count = n > 0 ? indices[n - 1] + bools[n - 1] : 0;
+            for (int i = 0; i < n; ++i)
+            {
+                if (bools[i] != 0)
+                {
+                    odata[indices[i]] = idata[i];
+                }
+            }
+
             timer().endCpuTimer();
-            return -1;
+            return count;
         }
     }
 }

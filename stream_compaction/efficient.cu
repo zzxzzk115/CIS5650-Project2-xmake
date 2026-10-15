@@ -17,7 +17,7 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
-            // TODO
+            // [ ] TODO
             timer().endGpuTimer();
         }
 
@@ -32,7 +32,7 @@ namespace StreamCompaction {
          */
         int compact(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
-            // TODO
+            // [ ] TODO
             timer().endGpuTimer();
             return -1;
         }

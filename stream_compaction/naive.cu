@@ -11,14 +11,14 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
-        // TODO: __global__
+        // [ ] TODO __global__
 
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
-            // TODO
+            // [ ] TODO
             timer().endGpuTimer();
         }
     }
