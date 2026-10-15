@@ -7,7 +7,7 @@ cis565_getting_started_generated_kernel*
 *.xcodeproj
 build
 
-# Created by https://www.gitignore.io/api/linux,osx,sublimetext,windows,jetbrains,vim,emacs,c++,cuda,visualstudio,webstorm,eclipse,xcode
+# Created by https://www.gitignore.io/api/linux,osx,sublimetext,windows,jetbrains,vim,emacs,c++,cuda,visualstudio,webstorm,xcode
 
 ### Linux ###
 *~
@@ -485,46 +485,10 @@ crashlytics.properties
 crashlytics-build.properties
 
 
-### Eclipse ###
-*.pydevproject
-.metadata
-.gradle
-bin/
+### Temporary files ###
 tmp/
-*.tmp
 *.bak
 *.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-
-# Eclipse Core
-.project
-
-# External tool builders
-.externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
-# CDT-specific
-.cproject
-
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
-# Java annotation processor (APT)
-.factorypath
-
-# PDT-specific
-.buildpath
-
-# sbteclipse plugin
-.target
-
-# TeXlipse plugin
-.texlipse
 
 
 ### Xcode ###
