@@ -2,8 +2,7 @@
 
 The xmake, clangd, VS Code, and Better Todo Tree configuration follows Project 1.
 Project 2 is a console application with a CUDA static library; it does not need
-GLM, GLFW, GLEW, or OpenGL. The original CMake files remain for the course
-starter, but the commands below use xmake directly.
+GLM, GLFW, GLEW, or OpenGL. Xmake is the build entry point for this repository.
 
 ## Requirements
 

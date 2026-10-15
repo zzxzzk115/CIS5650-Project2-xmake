@@ -3,8 +3,8 @@
 Use the same xmake and VS Code workflow as Project 1. Project 2 only needs
 CUDA, a compatible NVIDIA driver, a supported host C++ compiler, and xmake
 3.0.0 or newer. It has no OpenGL, GLFW, GLEW, GLM, or XWayland dependencies.
-CMake is not needed for the xmake workflow. Native Windows setup is documented
-in [Windows setup](WINDOWS_SETUP.md).
+Xmake is the build entry point. Native Windows setup is documented in
+[Windows setup](WINDOWS_SETUP.md).
 
 ## Build and run
 

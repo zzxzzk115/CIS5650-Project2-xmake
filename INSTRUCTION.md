@@ -230,8 +230,8 @@ assignments, as well.
 
 ## Submit
 
-If you have modified any of the `CMakeLists.txt` files at all (aside from the
-list of `SOURCE_FILES`), mentions it explicity.
+This fork uses xmake. Mention the build-system migration and any further
+changes to the `xmake.lua` files explicitly in your submission.
 Beware of any build issues discussed on the Ed Discussion.
 
 Open a GitHub pull request so that we can see that you have finished.

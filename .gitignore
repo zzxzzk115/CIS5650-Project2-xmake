@@ -7,7 +7,7 @@ cis565_getting_started_generated_kernel*
 *.xcodeproj
 build
 
-# Created by https://www.gitignore.io/api/linux,osx,sublimetext,windows,jetbrains,vim,emacs,cmake,c++,cuda,visualstudio,webstorm,eclipse,xcode
+# Created by https://www.gitignore.io/api/linux,osx,sublimetext,windows,jetbrains,vim,emacs,c++,cuda,visualstudio,webstorm,eclipse,xcode
 
 ### Linux ###
 *~
@@ -175,15 +175,6 @@ tramp
 
 # cask packages
 .cask/
-
-
-### CMake ###
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Makefile
-cmake_install.cmake
-install_manifest.txt
 
 
 ### C++ ###
