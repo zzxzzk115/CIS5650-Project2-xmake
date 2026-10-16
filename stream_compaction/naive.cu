@@ -46,7 +46,6 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             // [x] TODO
             // R/W buffers to avoid race condtion.
             int *dev_odata1, *dev_odata2;
@@ -59,6 +58,7 @@ namespace StreamCompaction {
             int *readBuffer = dev_odata1;
             int *writeBuffer = dev_odata2;
             const int rounds = ilog2ceil(n);
+            timer().startGpuTimer();
             for (int d = 1; d <= rounds; ++d)
             {
                 const int offset = 1 << (d - 1);
@@ -69,13 +69,12 @@ namespace StreamCompaction {
             // Convert the inclusive result to exclusive scan output.
             kernShift<<<blocks, threadPerBlock>>>(n, writeBuffer, readBuffer);
             std::swap(readBuffer, writeBuffer);
+            timer().endGpuTimer();
 
             cudaMemcpy(odata, readBuffer, n * sizeof(int), cudaMemcpyDeviceToHost);
 
             cudaFree(dev_odata1);
             cudaFree(dev_odata2);
-
-            timer().endGpuTimer();
         }
     }
 }
