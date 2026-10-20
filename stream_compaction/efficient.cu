@@ -19,9 +19,7 @@ namespace StreamCompaction {
                 return;
             }
 
-            // [x] TODO: Compute this group's left and right node indices.
-            // Each group has stride elements; right is its last element.
-            // Add the left node's value to the right node in place.
+            // Add the left subtree's sum to this group's right endpoint.
             int right = (k + 1) * stride - 1;
             int left = right - stride / 2;
             data[right] += data[left];
@@ -34,15 +32,44 @@ namespace StreamCompaction {
                 return;
             }
 
-            // [x] TODO: Compute the same left and right indices as up-sweep.
-            // Save the old left value, move the right value to the left,
-            // then add the saved value to the right.
+            // Distribute the parent prefix using the saved left subtree sum.
             int right = (k + 1) * stride - 1;
             int left = right - stride / 2;
 
             int temp = data[left];
             data[left] = data[right];
-            data[right]+= temp;
+            data[right] += temp;
+        }
+
+        namespace {
+            constexpr int threadsPerBlock = 64;
+
+            // N is a positive power of two. The caller owns the device buffer
+            // and timer, and must zero any padding before calling this helper.
+            void scanDevice(int N, int *dev_data) {
+                const int rounds = ilog2(N);
+                for (int d = 0; d < rounds; ++d)
+                {
+                    const int stride = 1 << (d + 1);
+                    const int groups = N / stride;
+                    const int blocks = (groups + threadsPerBlock - 1) / threadsPerBlock;
+                    kernUpSweep<<<blocks, threadsPerBlock>>>(N, stride, dev_data);
+                    checkCUDAError("Failed to launch up-sweep kernel");
+                }
+
+                // Clearing the root is part of the exclusive scan algorithm.
+                cudaMemsetAsync(dev_data + N - 1, 0, sizeof(int));
+                checkCUDAError("Failed to clear scan root");
+
+                for (int d = rounds - 1; d >= 0; --d)
+                {
+                    const int stride = 1 << (d + 1);
+                    const int groups = N / stride;
+                    const int blocks = (groups + threadsPerBlock - 1) / threadsPerBlock;
+                    kernDownSweep<<<blocks, threadsPerBlock>>>(N, stride, dev_data);
+                    checkCUDAError("Failed to launch down-sweep kernel");
+                }
+            }
         }
 
         /**
@@ -56,47 +83,24 @@ namespace StreamCompaction {
                 return;
             }
 
-            const int rounds = ilog2ceil(n);
-            const int N = 1 << rounds;
-            const int threadsPerBlock = 64;
+            const int N = 1 << ilog2ceil(n);
 
             // Pad to a power of two. The tree scan uses one in-place buffer.
             int *dev_data = nullptr;
             cudaMalloc((void**)&dev_data, N * sizeof(int));
-            checkCUDAError("allocate efficient scan buffer");
+            checkCUDAError("Failed to allocate efficient scan buffer");
             cudaMemset(dev_data, 0, N * sizeof(int));
             cudaMemcpy(dev_data, idata, n * sizeof(int), cudaMemcpyHostToDevice);
-            checkCUDAError("initialize efficient scan buffer");
+            checkCUDAError("Failed to initialize efficient scan buffer");
 
             timer().startGpuTimer();
-            for (int d = 0; d < rounds; ++d)
-            {
-                const int stride = 1 << (d + 1);
-                const int groups = N / stride;
-                const int blocks = (groups + threadsPerBlock - 1) / threadsPerBlock;
-                kernUpSweep<<<blocks, threadsPerBlock>>>(N, stride, dev_data);
-                checkCUDAError("launch up-sweep");
-            }
-
-            // Clear the tree root before down-sweep to get an exclusive scan.
-            // This is an algorithm step, so it belongs inside the timer.
-            cudaMemsetAsync(dev_data + N - 1, 0, sizeof(int));
-            checkCUDAError("clear scan root");
-
-            for (int d = rounds - 1; d >= 0; --d)
-            {
-                const int stride = 1 << (d + 1);
-                const int groups = N / stride;
-                const int blocks = (groups + threadsPerBlock - 1) / threadsPerBlock;
-                kernDownSweep<<<blocks, threadsPerBlock>>>(N, stride, dev_data);
-                checkCUDAError("launch down-sweep");
-            }
+            scanDevice(N, dev_data);
             timer().endGpuTimer();
 
             cudaMemcpy(odata, dev_data, n * sizeof(int), cudaMemcpyDeviceToHost);
-            checkCUDAError("download efficient scan result");
+            checkCUDAError("Failed to copy efficient scan result to host");
             cudaFree(dev_data);
-            checkCUDAError("free efficient scan buffer");
+            checkCUDAError("Failed to free efficient scan buffer");
         }
 
         /**
@@ -109,10 +113,63 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
+            if (n <= 0)
+            {
+                timer().startGpuTimer();
+                timer().endGpuTimer();
+                return 0;
+            }
+
+            const int N = 1 << ilog2ceil(n);
+            const int blocks = (n + threadsPerBlock - 1) / threadsPerBlock;
+            int *dev_input = nullptr;
+            int *dev_output = nullptr;
+            int *dev_bools = nullptr;
+            int *dev_indices = nullptr;
+
+            cudaMalloc((void**)&dev_input, n * sizeof(int));
+            cudaMalloc((void**)&dev_output, n * sizeof(int));
+            cudaMalloc((void**)&dev_bools, n * sizeof(int));
+            cudaMalloc((void**)&dev_indices, N * sizeof(int));
+            checkCUDAError("Failed to allocate efficient compaction buffers");
+
+            cudaMemcpy(dev_input, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemset(dev_indices, 0, N * sizeof(int));
+            checkCUDAError("Failed to initialize efficient compaction buffers");
+
             timer().startGpuTimer();
-            // [ ] TODO
+            Common::kernMapToBoolean<<<blocks, threadsPerBlock>>>(n, dev_bools, dev_input);
+            checkCUDAError("Failed to launch compaction map kernel");
+
+            // Preserve the flags for scatter while scanning a separate copy.
+            cudaMemcpyAsync(dev_indices, dev_bools, n * sizeof(int), cudaMemcpyDeviceToDevice);
+            checkCUDAError("Failed to copy compaction flags to scan buffer");
+            scanDevice(N, dev_indices);
+
+            Common::kernScatter<<<blocks, threadsPerBlock>>>(
+                n, dev_output, dev_input, dev_bools, dev_indices);
+            checkCUDAError("Failed to launch compaction scatter kernel");
             timer().endGpuTimer();
-            return -1;
+
+            // An exclusive scan omits the last flag from the final prefix.
+            int lastIndex = 0;
+            int lastBool = 0;
+            cudaMemcpy(&lastIndex, dev_indices + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(&lastBool, dev_bools + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            checkCUDAError("Failed to copy compaction count to host");
+            const int count = lastIndex + lastBool;
+            if (count > 0)
+            {
+                cudaMemcpy(odata, dev_output, count * sizeof(int), cudaMemcpyDeviceToHost);
+                checkCUDAError("Failed to copy efficient compaction result to host");
+            }
+
+            cudaFree(dev_input);
+            cudaFree(dev_output);
+            cudaFree(dev_bools);
+            cudaFree(dev_indices);
+            checkCUDAError("Failed to free efficient compaction buffers");
+            return count;
         }
     }
 }
